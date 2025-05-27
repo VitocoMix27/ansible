@@ -1,0 +1,20 @@
+---
+- name: Verificar sistema operativo y actualizaciones disponibles
+  hosts: lab_nodes
+  become: yes
+  tasks:
+    - name: Mostrar versión del sistema operativo
+      ansible.builtin.shell: cat /etc/os-release
+      register: os_release
+
+    - name: Imprimir información de /etc/os-release
+      ansible.builtin.debug:
+        var: os_release.stdout_lines
+
+    - name: Verificar actualizaciones disponibles
+      ansible.builtin.shell: dnf check-update || true
+      register: updates_output
+
+    - name: Imprimir lista de paquetes con actualización disponible
+      ansible.builtin.debug:
+        var: updates_output.stdout_lines
