@@ -1,0 +1,13 @@
+---
+- name: Obtener el uptime del sistema
+  hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: Ejecutar comando uptime
+      ansible.builtin.command: uptime
+      register: uptime_output
+
+    - name: Mostrar uptime
+      ansible.builtin.debug:
+        msg: "{{ uptime_output.stdout }}"
