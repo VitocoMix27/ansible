@@ -1,0 +1,23 @@
+---
+- name: Verificar uso de filesystem
+  hosts: all
+  become: true
+  tasks:
+    - name: Obtener uso de disco
+      ansible.builtin.command: df -hP
+      register: disk_usage
+
+    - name: Mostrar uso de disco
+      ansible.builtin.debug:
+        var: disk_usage.stdout_lines
+
+    - name: Analizar uso de disco y alertar si hay uso crítico
+      ansible.builtin.shell: |
+        df -P | awk 'NR>1 {gsub(/%/, "", $5); if ($5+0 > 90) print $0}'
+      register: high_usage
+      changed_when: false
+
+    - name: Alertar si hay filesystems con uso sobre 90%
+      ansible.builtin.fail:
+        msg: "Uso crítico en: {{ high_usage.stdout_lines }}"
+      when: high_usage.stdout_lines | length > 0
